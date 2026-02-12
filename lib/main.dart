@@ -2,22 +2,35 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:healthtrack/Login/bloc/login_bloc.dart';
-import 'package:healthtrack/dashboard/bloc/dashboard_bloc.dart';
-import 'package:healthtrack/dashboard/view/dashboard_screen.dart';
+import 'package:healthtrack/features/dashboard/presentation/bloc/dashboard_bloc.dart';
+import 'package:healthtrack/features/dashboard/presentation/pages/dashboard_screen.dart';
+import 'package:healthtrack/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:healthtrack/features/patient/data/models/diagnosis.dart';
+import 'package:healthtrack/features/patient/data/models/patient.dart';
+import 'package:healthtrack/features/patient/data/patient_repository.dart';
+import 'package:healthtrack/features/patient/presentation/bloc/patient_bloc.dart';
+import 'package:healthtrack/features/patient/presentation/pages/add_patient_screen.dart';
+import 'package:healthtrack/features/patient/presentation/pages/patient_screen.dart';
 import 'package:healthtrack/firebase_options.dart';
-import 'package:healthtrack/login/view/login_screen.dart';
-import 'package:healthtrack/signup/bloc/signup_bloc.dart';
-import 'package:healthtrack/signup/view/signup_screen.dart';
+import 'package:healthtrack/features/auth/presentation/pages/login_screen.dart';
+import 'package:healthtrack/features/auth/presentation/pages/signup_screen.dart';
+import 'package:hive_flutter/adapters.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(const MyApp());
+  await Hive.initFlutter();
+  Hive.registerAdapter(PatientAdapter());
+  Hive.registerAdapter(DiagnosisAdapter());
+  final patientBox = await Hive.openBox<Patient>('patients');
+  final diagnosisBox = await Hive.openBox<Diagnosis>('diagnoses');
+  runApp(MyApp(patientBox: patientBox,diagnosisBox: diagnosisBox,));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final Box<Patient> patientBox;
+  final Box<Diagnosis> diagnosisBox;
+  const MyApp({super.key,required this.diagnosisBox,required this.patientBox});
 
   @override
   Widget build(BuildContext context) {
@@ -30,15 +43,17 @@ class MyApp extends StatelessWidget {
       initialRoute = "/login_screen";
     }
     return MultiBlocProvider(providers: [
-      BlocProvider(create: (context)=> LoginBloc(),),
-      BlocProvider(create: (context)=> SignupBloc()),
+      BlocProvider(create: (context)=> AuthBloc(),),
       BlocProvider(create: (context)=> DashboardBloc()),
+      BlocProvider(create: (context)=> PatientBloc(PatientRepository(diagnosisBox: diagnosisBox,patientBox: patientBox))),
     ],
     child: MaterialApp(
       routes: {
           "/login_screen":(context)=>const LoginScreen(),
           "/signup_screen":(context)=>const SignupScreen(),
           "/dashboard_screen":(context)=>const DashboardScreen(),
+          "/patient_screen":(context)=>const PatientScreen(),
+          "/add_patient_screen":(context)=>const AddpatientScreen(),
         },
       debugShowCheckedModeBanner: false,
       initialRoute: initialRoute,

@@ -11,6 +11,8 @@
 .svn/
 .swiftpm/
 migrate_working_dir/
+Thumbs.db
+
 
 # IntelliJ related
 *.iml
@@ -32,6 +34,10 @@ migrate_working_dir/
 .pub/
 /build/
 /coverage/
+.packages
+.flutter-plugins
+
+
 
 # Symbolication related
 app.*.symbols
@@ -43,3 +49,10 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Android
+android/.gradle/
+android/local.properties
+android/key.properties
+*.keystore
+
