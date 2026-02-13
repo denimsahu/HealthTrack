@@ -1,30 +1,39 @@
 import 'package:flutter/material.dart';
 
 Widget customElevatedButton({
-  required BuildContext context,
-  required Function onPressed,
+  required VoidCallback? onPressed,
   String? text,
   Widget? child,
-  Color? color,
-  double? elevation,
-}
-
-) {
-  return Container(
-      width: MediaQuery.of(context).size.width * 0.9,
-      height: 50.0,
-      child: ElevatedButton(
-        onPressed: () {
-          onPressed();
-        },
-        child: text!=null?Text(
-              text,
-              style: TextStyle(fontSize: 20, color: Colors.black),
-            ):
-            child,
-        style: ElevatedButton.styleFrom(
-          elevation: elevation??10.0,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
-            backgroundColor:color??Colors.blue.shade200),
-      ));
+  bool isLoading = false,
+}) {
+  return SizedBox(
+    width: double.infinity,
+    height: 50,
+    child: ElevatedButton(
+      onPressed: isLoading ? null : onPressed,
+      style: ElevatedButton.styleFrom(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        elevation: 4,
+      ),
+      child: isLoading
+          ? const SizedBox(
+              height: 20,
+              width: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Colors.white,
+              ),
+            )
+          : child ??
+              Text(
+                text ?? "",
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+    ),
+  );
 }

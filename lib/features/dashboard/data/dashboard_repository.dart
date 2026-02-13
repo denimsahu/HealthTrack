@@ -9,9 +9,9 @@ class DashboardRepository {
   DashboardRepository({required Box<Diagnosis> diagnosisBox, required Box<Patient> patientBox }) :_diagnosisBox=diagnosisBox, _patientBox=patientBox;
 
   Future<Map<String,String>> getDashboardDetails() async {
-    int toalPatient = await _patientBox.length;
+    int totalPatient = await _patientBox.length;
     int totalReports = await _diagnosisBox.length;
-    return  {"toalPatient":toalPatient.toString(),"totalReports":totalReports.toString()};
+    return  {"totalPatient":totalPatient.toString(),"totalReports":totalReports.toString()};
   }
 
 }

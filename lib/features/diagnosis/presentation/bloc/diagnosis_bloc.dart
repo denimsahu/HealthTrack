@@ -29,6 +29,7 @@ class DiagnosisBloc extends Bloc<DiagnosisEvent, DiagnosisState> {
 
     on<AddDiagnosisEvent>((event, emit) async {
       await diagnosisRepository.addDiagnosis(patientId: event.patientId, imageAddress: event.imagePath);
+      emit(DiagnosisAddedState());
     });
   }
 }

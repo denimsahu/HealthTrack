@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lottie/lottie.dart';
 import 'package:healthtrack/features/patient/presentation/bloc/patient_bloc.dart';
 
 class PatientScreen extends StatefulWidget {
@@ -21,98 +20,102 @@ class _PatientScreenState extends State<PatientScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Patients"),),
-      body: Center(
+      appBar: AppBar(
+        title: const Text("Patients"),
+        elevation: 2,
+      ),
+      body: SafeArea(
         child: BlocBuilder<PatientBloc, PatientState>(
-          builder: (context,state){
-            if(state is LoadingPatientState){
-              return CircularProgressIndicator();
+          builder: (context, state) {
+
+            if (state is LoadingPatientState) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
             }
-            else if (state is ErrorPatientState){
-              return Text(state.error);
+
+            if (state is ErrorPatientState) {
+              return Center(
+                child: Text(state.error),
+              );
             }
-            else if (state is PatientLoadedState) {
-              return ListView.builder(
-                padding: EdgeInsets.symmetric(
-                vertical:MediaQuery.of(context).size.height * 0.01),
+
+            if (state is EmptyPatientState) {
+              return const Center(
+                child: Text(
+                  "No patient records found",
+                  style: TextStyle(fontSize: 16),
+                ),
+              );
+            }
+
+            if (state is PatientLoadedState) {
+              return ListView.separated(
+                padding: const EdgeInsets.all(16),
                 itemCount: state.patients.length,
-                itemBuilder: (context, int index) {
-                  return SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        Container(
-                          margin: EdgeInsets.symmetric(
-                            horizontal: MediaQuery.of(context).size.width *0.01),
-                            child: Card(
-                              elevation: 10.0,
-                              shape: RoundedRectangleBorder(
-                                  side: BorderSide(
-                                      width: 2,
-                                      color: Color.fromARGB(
-                                          255, 255, 255, 255)),
-                                  borderRadius:
-                                      BorderRadius.circular(15)),
-                              child: ListTile(
-                                onTap: () {
-                                  Navigator.pushNamed(context, "/diagnosis_list_screen",arguments:index);
-                                },
-                                shape: RoundedRectangleBorder(
-                                    borderRadius:
-                                        BorderRadius.circular(30)),
-                                leading: Container(
-                                  padding:
-                                      EdgeInsets.only(right: 12.0),
-                                  decoration: new BoxDecoration(
-                                      border: new Border(
-                                          right: new BorderSide(
-                                              width: 2.0,
-                                              color: Colors
-                                                  .grey.shade400))),
-                                  child: CircleAvatar(
-                                    child: Lottie.asset(
-                                        "assets/PatientFeedback.json"),
-                                    backgroundColor: Colors.white,
-                                  ),
-                                ),
-                                title: Text(
-                                  'Patient Name : ${state.patients[index].name}',
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.w500),
-                                ),
-                                subtitle: Text(
-                                    'Note: ${state.patients[index].notes}'),
-                              ),
-                            ),
-                          ),
-                          Divider(
-                            color: Colors.grey.shade400,
-                            height:
-                                MediaQuery.of(context).size.height *
-                                    0.03,
-                            thickness: 5,
-                            indent:
-                                MediaQuery.of(context).size.width *
-                                    0.015,
-                            endIndent:
-                                MediaQuery.of(context).size.width *
-                                    0.015,
-                          ),
-                        ],
+                separatorBuilder: (_, __) => const SizedBox(height: 16),
+                itemBuilder: (context, index) {
+
+                  final patient = state.patients[index];
+
+                  return Card(
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.all(16),
+                      onTap: () {
+                        Navigator.pushNamed(
+                          context,
+                          "/diagnosis_list_screen",
+                          arguments: index,  // use real patientId
+                        );
+                      },
+                      leading: CircleAvatar(
+                        backgroundColor: Colors.blueAccent.withOpacity(0.15),
+                        child: const Icon(
+                          Icons.person,
+                          color: Colors.blueAccent,
+                        ),
                       ),
-                    );
-              });
+                      title: Text(
+                        patient.name,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      subtitle: Padding(
+                        padding: const EdgeInsets.only(top: 6),
+                        child: Text(
+                          patient.notes.isEmpty
+                              ? "No additional notes"
+                              : patient.notes,
+                          style: const TextStyle(color: Colors.grey),
+                        ),
+                      ),
+                      trailing: const Icon(
+                        Icons.arrow_forward_ios,
+                        size: 16,
+                      ),
+                    ),
+                  );
+                },
+              );
             }
-            else{
-              return Text("No Patients Record Found");
-            }
+
+            return const SizedBox();
           },
         ),
       ),
-      floatingActionButton: ElevatedButton(onPressed: (){
-        Navigator.pushNamed(context, "/add_patient_screen");
-      }, 
-      child: Text("Add Patient")),
+
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.pushNamed(context, "/add_patient_screen");
+        },
+        icon: const Icon(Icons.add),
+        label: const Text("Add Patient"),
+      ),
     );
   }
 }

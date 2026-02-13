@@ -31,6 +31,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(AuthLoadingState());
       try{
         await authRepository.signUp(email: event.email, password: event.password);
+        emit(AuthSuccessState());
       }
       on FirebaseAuthException catch (error){
         emit(AuthFailureState(failuremessage: error.message ?? "Authentication failed"));
@@ -41,6 +42,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(AuthLoadingState());
       try{
         await authRepository.Logout();
+        emit(AuthLogoutState());
       }
       on FirebaseAuthException catch (error){
         emit(AuthFailureState(failuremessage: error.message ?? "Authentication failed"));

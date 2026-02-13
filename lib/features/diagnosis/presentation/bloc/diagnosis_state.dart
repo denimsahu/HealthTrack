@@ -16,3 +16,4 @@ class EmptyDiagnosisState extends DiagnosisState{}
 
 class ErrorDiagnosisState extends DiagnosisState{}
 
+class DiagnosisAddedState extends DiagnosisState{}

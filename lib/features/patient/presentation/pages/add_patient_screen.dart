@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:healthtrack/features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import 'package:healthtrack/features/patient/presentation/bloc/patient_bloc.dart';
 import 'package:healthtrack/features/patient/presentation/widgets/custom_elevated_button.dart';
 import 'package:healthtrack/features/patient/presentation/widgets/custom_text_field.dart';
@@ -13,64 +14,150 @@ class AddpatientScreen extends StatefulWidget {
 
 class _AddpatientScreenState extends State<AddpatientScreen> {
 
-    TextEditingController nameTextEditingController = TextEditingController();
-    TextEditingController ageTextEditingController = TextEditingController();
-    TextEditingController genderTextEditingController = TextEditingController();
-    TextEditingController contactTextEditingController = TextEditingController();
-    TextEditingController notesTextEditingController = TextEditingController();
-    
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController ageController = TextEditingController();
+  final TextEditingController genderController = TextEditingController();
+  final TextEditingController contactController = TextEditingController();
+  final TextEditingController notesController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Admit Patient"),
+        title: const Text("Admit Patient"),
+        elevation: 2,
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 80),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Please Fillup The Following Details",style:TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
-              SizedBox(height: MediaQuery.of(context).size.height*0.05,),
-              customTextFeild(context: context, labelText: "Full Name",controller: nameTextEditingController),
-              Container(width: MediaQuery.of(context).size.width*0.8, child: Divider(thickness: 3,radius: BorderRadius.circular(10),)),
-              customTextFeild(context: context, labelText: "Age",controller: ageTextEditingController,keyboardType: TextInputType.number),
-              Container(width: MediaQuery.of(context).size.width*0.8, child: Divider(thickness: 3,radius: BorderRadius.circular(10),)),
-              customTextFeild(context: context, labelText: "Gender",controller: genderTextEditingController),
-              Container(width: MediaQuery.of(context).size.width*0.8, child: Divider(thickness: 3,radius: BorderRadius.circular(10),)),
-              customTextFeild(context: context, labelText: "Contact",controller: contactTextEditingController,keyboardType: TextInputType.phone),
-              Container(width: MediaQuery.of(context).size.width*0.8, child: Divider(thickness: 3,radius: BorderRadius.circular(10),)),
-              customTextFeild(context: context, labelText: "Notes", controller: notesTextEditingController),
-              SizedBox(height: MediaQuery.of(context).size.height*0.05,),
+
+              const Text(
+                "Patient Information",
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+
+              const SizedBox(height: 10),
+
+              const Text(
+                "Fill in the details below",
+                style: TextStyle(color: Colors.grey),
+              ),
+
+              const SizedBox(height: 30),
+
+              customTextFeild(
+                context: context,
+                labelText: "Full Name",
+                controller: nameController,
+              ),
+
+              const SizedBox(height: 20),
+
+              customTextFeild(
+                context: context,
+                labelText: "Age",
+                controller: ageController,
+                keyboardType: TextInputType.number,
+              ),
+
+              const SizedBox(height: 20),
+
+              customTextFeild(
+                context: context,
+                labelText: "Gender",
+                controller: genderController,
+              ),
+
+              const SizedBox(height: 20),
+
+              customTextFeild(
+                context: context,
+                labelText: "Contact",
+                controller: contactController,
+                keyboardType: TextInputType.phone,
+              ),
+
+              const SizedBox(height: 20),
+
+              customTextFeild(
+                context: context,
+                labelText: "Notes",
+                controller: notesController,
+              ),
+
+              const SizedBox(height: 40),
+
               BlocConsumer<PatientBloc, PatientState>(
                 listener: (context, state) {
-                  if(state is ErrorPatientState){
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text(state.error.toString()),
-                      padding: EdgeInsets.fromLTRB(10, 20, 10, 20),
-                      duration: Duration(seconds: 2),
-                    ));
-                  }
-                  else if(state is SuccessPatientAddedState){
-                    Navigator.popAndPushNamed(context, "/dashboard_screen");
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text("Patient Admitted Successfully!!"),
-                      padding: EdgeInsets.fromLTRB(10, 20, 10, 20),
-                      duration: Duration(seconds: 2),
-                    ));
+
+                  if (state is ErrorPatientState) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(state.error)),
+                    );
                   }
 
+                  if (state is SuccessPatientAddedState) {
+                    context.read<DashboardBloc>().add(GetDetailDashboardEvent());
+                    context.read<PatientBloc>().add(LoadPatientsEvent());
+                    Navigator.pop(context);
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Patient admitted successfully"),
+                      ),
+                    );
+                  }
                 },
                 builder: (context, state) {
-                  return customElevatedButton(context: context, onPressed: (){
-                    print(notesTextEditingController.text+"-----------------------------------");
-                    context.read<PatientBloc>().add(AddPatientEvent(name: nameTextEditingController.text, age: int.parse(ageTextEditingController.text), contact: contactTextEditingController.text, gender: genderTextEditingController.text, notes: notesTextEditingController.text));
-                  },
-                  text: "Admit");
+                  return customElevatedButton(
+                    text: "Admit Patient",
+                    onPressed: () {
+
+                      if (nameController.text.isEmpty ||
+                          ageController.text.isEmpty ||
+                          genderController.text.isEmpty ||
+                          contactController.text.isEmpty) {
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Please fill all required fields"),
+                          ),
+                        );
+                        return;
+                      }
+
+                      final int? age = int.tryParse(ageController.text);
+
+                      if (age == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Enter valid age"),
+                          ),
+                        );
+                        return;
+                      }
+
+                      context.read<PatientBloc>().add(
+                            AddPatientEvent(
+                              name: nameController.text.trim(),
+                              age: age,
+                              contact: contactController.text.trim(),
+                              gender: genderController.text.trim(),
+                              notes: notesController.text.trim(),
+                            ),
+                          );
+                    },
+                  );
                 },
-              )
-            ]
+              ),
+
+            ],
           ),
         ),
       ),
