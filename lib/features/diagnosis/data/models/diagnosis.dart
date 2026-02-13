@@ -12,15 +12,19 @@ class Diagnosis extends HiveObject {
   String imageAddress;
 
   @HiveField(2)
-  String analysis;
+  int analysis;
 
   @HiveField(3)
   String Explainability;
+
+  @HiveField(4)
+  DateTime dateTime;
 
   Diagnosis({
     required this.patientId,
     required this.imageAddress,
     required this.analysis,
     required this.Explainability,
+    required this.dateTime
   });
 }

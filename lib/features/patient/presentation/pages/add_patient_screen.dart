@@ -41,7 +41,7 @@ class _AddpatientScreenState extends State<AddpatientScreen> {
               Container(width: MediaQuery.of(context).size.width*0.8, child: Divider(thickness: 3,radius: BorderRadius.circular(10),)),
               customTextFeild(context: context, labelText: "Contact",controller: contactTextEditingController,keyboardType: TextInputType.phone),
               Container(width: MediaQuery.of(context).size.width*0.8, child: Divider(thickness: 3,radius: BorderRadius.circular(10),)),
-              customTextFeild(context: context, labelText: "Notes"),
+              customTextFeild(context: context, labelText: "Notes", controller: notesTextEditingController),
               SizedBox(height: MediaQuery.of(context).size.height*0.05,),
               BlocConsumer<PatientBloc, PatientState>(
                 listener: (context, state) {
@@ -64,6 +64,7 @@ class _AddpatientScreenState extends State<AddpatientScreen> {
                 },
                 builder: (context, state) {
                   return customElevatedButton(context: context, onPressed: (){
+                    print(notesTextEditingController.text+"-----------------------------------");
                     context.read<PatientBloc>().add(AddPatientEvent(name: nameTextEditingController.text, age: int.parse(ageTextEditingController.text), contact: contactTextEditingController.text, gender: genderTextEditingController.text, notes: notesTextEditingController.text));
                   },
                   text: "Admit");

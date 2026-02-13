@@ -19,15 +19,16 @@ class DiagnosisAdapter extends TypeAdapter<Diagnosis> {
     return Diagnosis(
       patientId: fields[0] as int,
       imageAddress: fields[1] as String,
-      analysis: fields[2] as String,
+      analysis: fields[2] as int,
       Explainability: fields[3] as String,
+      dateTime: fields[4] as DateTime,
     );
   }
 
   @override
   void write(BinaryWriter writer, Diagnosis obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.patientId)
       ..writeByte(1)
@@ -35,7 +36,9 @@ class DiagnosisAdapter extends TypeAdapter<Diagnosis> {
       ..writeByte(2)
       ..write(obj.analysis)
       ..writeByte(3)
-      ..write(obj.Explainability);
+      ..write(obj.Explainability)
+      ..writeByte(4)
+      ..write(obj.dateTime);
   }
 
   @override
